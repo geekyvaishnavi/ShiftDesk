@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shiftdesk
+      POSTGRES_PASSWORD: shiftdesk
+      POSTGRES_DB: shiftdesk
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shiftdesk -d shiftdesk"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      target: build
+    environment:
+      DATABASE_URL: postgresql://shiftdesk:shiftdesk@db:5432/shiftdesk
+    command: sh -c "bunx prisma migrate deploy"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+    environment:
+      DATABASE_URL: postgresql://shiftdesk:shiftdesk@db:5432/shiftdesk
+    ports:
+      - "3000:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  db-data:
