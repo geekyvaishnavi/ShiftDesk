@@ -45,3 +45,10 @@ learnings.md
 PROJECT_BRIEF.md
 
 /src/generated/prisma
+
+
+# agent tooling
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
