@@ -43,3 +43,5 @@ next-env.d.ts
 
 learnings.md
 PROJECT_BRIEF.md
+
+/src/generated/prisma

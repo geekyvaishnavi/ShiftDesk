@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  manager
+  staff
+}
+
+enum Profession {
+  doctor
+  nurse
+  receptionist
+}
+
+/// A manager or a staff member. Staff have a profession, managers do not.
+model User {
+  id           String      @id @default(cuid())
+  externalId   String?     @unique
+  email        String      @unique
+  passwordHash String
+  fullName     String
+  role         Role
+  profession   Profession?
+  claims       Claim[]
+  createdAt    DateTime    @default(now())
+}
+
+/// Times are absolute timestamps, so overnight shifts need no special case.
+model Shift {
+  id              String   @id @default(cuid())
+  externalId      String?  @unique
+  startsAt        DateTime @db.Timestamptz(3)
+  endsAt          DateTime @db.Timestamptz(3)
+  reqDoctor       Int      @default(0)
+  reqNurse        Int      @default(0)
+  reqReceptionist Int      @default(0)
+  claims          Claim[]
+  createdAt       DateTime @default(now())
+
+  @@index([startsAt])
+}
+
+/// One person on one shift. The unique pair prevents claiming the same shift twice.
+model Claim {
+  id        String   @id @default(cuid())
+  userId    String
+  shiftId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shift     Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, shiftId])
+  @@index([shiftId])
+}
+
+/// One CSV import, from the seed or a manager upload.
+model ImportRun {
+  id        String      @id @default(cuid())
+  source    String
+  kind      String
+  fileName  String
+  accepted  Int
+  merged    Int
+  rejected  Int
+  createdAt DateTime    @default(now())
+  rows      ImportRow[]
+}
+
+/// One rejected or merged row, shown on the import report.
+model ImportRow {
+  id         String    @id @default(cuid())
+  runId      String
+  run        ImportRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  lineNumber Int
+  raw        String
+  status     String
+  reason     String
+
+  @@index([runId])
+}
