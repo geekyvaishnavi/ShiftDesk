@@ -10,7 +10,7 @@
 | Language | TypeScript |
 | Database | PostgreSQL |
 | ORM | Prisma |
-| Auth | Auth.js |
+| Auth | Signed JWT cookie (`jose`) + `bcryptjs` |
 | Styling | Tailwind CSS |
 | Local setup | Docker Compose |
 | Hosting | Vercel + Neon |
@@ -27,7 +27,12 @@ so the compiler catches any case the report fails to handle.
 **Prisma.** Migrations and `$transaction`. The row lock is raw SQL, since the
 query builder does not express `FOR UPDATE`.
 
-**Auth.js.** Sessions and role checks without hand-rolling password handling.
+**Auth.** Email and password only, with one role check, so Auth.js would have
+added a provider abstraction and its own schema for no gain here. Instead the
+session is a JWT signed with `jose`, stored in an httpOnly cookie, and
+passwords are hashed with `bcryptjs`. Roughly sixty lines, and the trust
+boundary stays legible: a tampered cookie fails signature verification and
+reads as signed out.
 
 **Tailwind.** Fastest route to a responsive dashboard.
 
@@ -45,8 +50,13 @@ one expression:
 A.starts_at < B.ends_at AND B.starts_at < A.ends_at
 ```
 
-Constraints: `UNIQUE(user_id, shift_id)`, `UNIQUE(email)`,
-`CHECK (ends_at > starts_at)`.
+Constraints: `UNIQUE(user_id, shift_id)` so a claim cannot be duplicated,
+`UNIQUE(email)`, and `UNIQUE(external_id)` on both users and shifts so
+re-running the seed upserts rather than duplicating.
+
+`ends_at > starts_at` is enforced by the importer and by shift editing rather
+than as a database `CHECK`; adding the constraint is listed under *With more
+time*, since it belongs where it cannot be bypassed.
 
 ## Access control
 
@@ -97,9 +107,12 @@ quoted rather than guessed at.
 are rejected as ambiguous, and rows over 24 hours as malformed, since a date
 and two clock times cannot express a longer shift.
 
-**Roles.** Values are trimmed, lowercased and stripped of punctuation before
-lookup, so casing variants need no entries. Unrecognised roles are rejected
-with the original text, never fuzzy-matched.
+**Roles.** Values are trimmed and lowercased before lookup, so casing variants
+need no entries of their own. Every accepted spelling, including abbreviations
+like `MD`, `RN` and `recep.`, is an explicit entry in one table: a synonym is
+either recognised or it is not. Unrecognised roles are rejected with the
+original text, never fuzzy-matched, so a typo cannot silently become a
+profession.
 
 **Duplicates.** Records dedupe on their identifier, staff additionally on
 email. Two shifts sharing a date and time are not duplicates; a clinic runs
@@ -110,6 +123,20 @@ several at once.
 The week view is server-rendered and addressed by URL, so a week can be linked.
 Status comes from claims against requirements per profession, and missing roles
 are named rather than counted.
+
+Weeks run Monday to Sunday and every boundary is computed in UTC, matching the
+importer, so a shift cannot land in a different week depending on where the
+server runs. The end of a week is the following Monday, exclusive, which is
+also the range query.
+
+Coverage counts each profession only up to what the shift requires: three
+doctors on a shift needing one doctor and two nurses reads as partially
+staffed, not full. Extra people never fill another role's gap.
+
+The default week is the current one, falling back to the earliest week that
+has shifts when it is empty. The seed data sits in a fixed month, so a manager
+opening the dashboard would otherwise land on a blank week and assume the
+import failed.
 
 ## Local setup
 
@@ -143,6 +170,8 @@ stage. Production runs on Vercel and Neon; both environments read the same
 - Enforce overlap as a Postgres exclusion constraint
   (`EXCLUDE USING gist`) instead of an application check, so it holds from any
   code path rather than only the one that takes the lock
+- Add `CHECK (ends_at > starts_at)` so a zero-length or reversed shift cannot
+  be written even by a direct SQL edit
 - Notify staff when a manager's edit drops their claim; only the manager sees
   it now
 - Preview an import before committing rather than writing immediately
