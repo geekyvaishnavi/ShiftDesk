@@ -4,9 +4,9 @@ From PROJECT_BRIEF.md.
 
 ## 1. Auth & roles
 
-- [ ] R1.1 Login with email + password
-- [ ] R1.2 Two roles: `manager`, `staff`
-- [ ] R1.3 Staff have a profession: doctor / nurse / receptionist
+- [x] R1.1 Login with email + password
+- [x] R1.2 Two roles: `manager`, `staff`
+- [x] R1.3 Staff have a profession: doctor / nurse / receptionist
 - [ ] R1.4 Staff can only claim/unclaim for themselves
 - [ ] R1.5 Manager can assign staff to shifts directly
 - [ ] R1.6 Seed 1 manager and several staff
@@ -93,10 +93,10 @@ From PROJECT_BRIEF.md.
 - [ ] R6.4 DECISIONS.md, including one thing to do differently with more time
 - [ ] R6.5 README: stack, local setup, test instructions, credentials
 - [ ] R6.6 Tests runnable with one command
-- [ ] R6.7 `docker compose up` starts app and database, runs migrations, seeds
+- [x] R6.7 `docker compose up` starts app and database, runs migrations, seeds
 - [ ] R6.8 Fresh clone needs no setup steps beyond `docker compose up`
-- [ ] R6.9 App image builds from `output: 'standalone'`
-- [ ] R6.10 App waits for the database healthcheck before migrating
+- [x] R6.9 App image builds from `output: 'standalone'`
+- [x] R6.10 App waits for the database healthcheck before migrating
 
 ## 7. Tests
 
