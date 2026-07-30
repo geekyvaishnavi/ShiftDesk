@@ -15,7 +15,7 @@ From PROJECT_BRIEF.md.
 
 ## 2. Shift management
 
-- [ ] R2.1 Shift has date, start time, end time, role requirements
+- [x] R2.1 Shift has date, start time, end time, role requirements
 - [ ] R2.2 Manager can create a shift
 - [ ] R2.3 Manager can edit a shift
 - [ ] R2.4 Manager can delete a shift
@@ -46,34 +46,34 @@ From PROJECT_BRIEF.md.
 
 ### staff.csv rules
 
-- [ ] Trim whitespace and normalise case
-- [ ] Map role synonyms:
+- [x] Trim whitespace and normalise case
+- [x] Map role synonyms:
       doctor: Doctor, DOCTOR, Physician, MD
       nurse: NURSE, RN, Nurse, nurse, Registered Nurse
       receptionist: receptionist, Receptionist, Reception, recep.
-- [ ] Reject unsupported profession (997, Janitor)
-- [ ] Merge exact duplicate rows (103, 110)
-- [ ] Merge same person under two ids, matched on email (999 into 105)
-- [ ] Repair `(at)` to `@` in emails (122, 115)
-- [ ] Reject missing email (995)
-- [ ] Reject missing name (996)
-- [ ] Reject email already used by another staff member (998 vs 107)
+- [x] Reject unsupported profession (997, Janitor)
+- [x] Merge exact duplicate rows (103, 110)
+- [x] Merge same person under two ids, matched on email (999 into 105)
+- [x] Repair `(at)` to `@` in emails (122, 115)
+- [x] Reject missing email (995)
+- [x] Reject missing name (996)
+- [x] Reject email already used by another staff member (998 vs 107)
 
 ### shifts.csv rules
 
-- [ ] Parse three date formats by separator:
+- [x] Parse three date formats by separator:
       `YYYY-MM-DD` ISO
       `DD/MM/YYYY` slash, day first
       `MM-DD-YYYY` dash, month first
-- [ ] Reject impossible dates (5110, 2026-02-30)
-- [ ] Reject missing start or end time (5114)
-- [ ] Reject zero-length shift (5112, 12:00 to 12:00)
-- [ ] Reject duration over 24h after the next-day roll (5115 is 26h)
-- [ ] Repair `10:00+1` next-day notation (5115)
-- [ ] Reject free-text requirements (5113, "two nurses and a doctor")
-- [ ] Missing requirement keys default to 0
-- [ ] Overnight shifts (end before start) roll to the next day, not an error
-- [ ] Dedupe on `shift_id` only (5020). 25 groups share a date and time
+- [x] Reject impossible dates (5110, 2026-02-30)
+- [x] Reject missing start or end time (5114)
+- [x] Reject zero-length shift (5112, 12:00 to 12:00)
+- [x] Reject duration over 24h after the next-day roll (5115 is 26h)
+- [x] Repair `10:00+1` next-day notation (5115)
+- [x] Reject free-text requirements (5113, "two nurses and a doctor")
+- [x] Missing requirement keys default to 0
+- [x] Overnight shifts (end before start) roll to the next day, not an error
+- [x] Dedupe on `shift_id` only (5020). 25 groups share a date and time
       under different ids; those are separate shifts.
 
 ## 5. Coverage dashboard
