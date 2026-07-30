@@ -9,7 +9,7 @@ From PROJECT_BRIEF.md.
 - [x] R1.3 Staff have a profession: doctor / nurse / receptionist
 - [ ] R1.4 Staff can only claim/unclaim for themselves
 - [ ] R1.5 Manager can assign staff to shifts directly
-- [ ] R1.6 Seed 1 manager and several staff
+- [x] R1.6 Seed 1 manager and several staff
 - [ ] R1.7 Credentials listed in README
 - [ ] R1.8 Manager-only routes return 403 for staff
 
@@ -35,7 +35,7 @@ From PROJECT_BRIEF.md.
 
 ## 4. CSV import
 
-- [ ] R4.1 Import runs as part of seed
+- [x] R4.1 Import runs as part of seed
 - [ ] R4.2 Deployed database pre-populated from that import
 - [ ] R4.3 Manager can upload a CSV through the UI
 - [ ] R4.4 Upload calls the same import function as seed
