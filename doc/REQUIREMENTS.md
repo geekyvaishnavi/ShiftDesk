@@ -10,7 +10,7 @@ From PROJECT_BRIEF.md.
 - [x] R1.4 Staff can only claim/unclaim for themselves
 - [x] R1.5 Manager can assign staff to shifts directly
 - [x] R1.6 Seed 1 manager and several staff
-- [ ] R1.7 Credentials listed in README
+- [x] R1.7 Credentials listed in README
 - [x] R1.8 Manager-only routes deny staff
       Pages redirect to `/shifts`; server actions return an error. The 403
       helpers in `auth.ts` are for route handlers, of which there are none.
@@ -34,8 +34,8 @@ From PROJECT_BRIEF.md.
 - [x] R3.7 Same rules apply when a manager assigns someone
 - [x] R3.8 Rules re-validated when a shift's time is edited after being claimed
 - [x] R3.9 Concurrent claims on one open slot: exactly one succeeds
-      Enforced by `FOR UPDATE` on both the shift and the user. Implemented,
-      not yet proven — see T3.1.
+      Enforced by `FOR UPDATE` on both the shift and the user, and proven by
+      T3.1: deleting either lock fails those tests and no others.
 
 ## 4. CSV import
 
@@ -95,68 +95,73 @@ From PROJECT_BRIEF.md.
 
 ## 6. Deliverables
 
-- [ ] R6.1 Live deployed URL, seeded
-      Neon is migrated and seeded. Vercel is serving an empty build.
-- [ ] R6.2 README notes cold starts
+- [x] R6.1 Live deployed URL, seeded
+- [x] R6.2 README notes cold starts
 - [x] R6.3 Meaningful commits
 - [x] R6.4 DECISIONS.md, including one thing to do differently with more time
-- [ ] R6.5 README: stack, local setup, test instructions, credentials
-      Still the create-next-app boilerplate.
-- [ ] R6.6 Tests runnable with one command
+- [x] R6.5 README: stack, local setup, test instructions, credentials
+- [x] R6.6 Tests runnable with one command
 - [x] R6.7 `docker compose up` starts app and database, runs migrations, seeds
-- [ ] R6.8 Fresh clone needs no setup steps beyond `docker compose up`
-      Not verified from a clean clone.
+- [x] R6.8 Fresh clone needs no setup steps beyond `docker compose up`
+      Verified by cloning the repo and bringing the stack up: migrations apply,
+      the seed reports 34/3/4 and 111/1/5, the app serves, no `.env` needed.
+      Needed `public/.gitkeep` — git does not track empty directories, so the
+      Dockerfile's `COPY /app/public` failed on a clone but not locally.
 - [x] R6.9 App image builds from `output: 'standalone'`
 - [x] R6.10 App waits for the database healthcheck before migrating
 
 ## 7. Tests
 
-Run with `bun test`. Documented in the README.
+Run with `bun test`, which needs Postgres up. 26 tests across two files.
 
+T1.1 and T1.8–T1.13 have no case of their own. T1.14 asserts the counts the
+real CSVs produce, which fails if any of those rules break: covered, not
+itemised.
 
 ### Import (pure functions, no database)
 
-Table-driven, one case per rule in section 4.
-
 - [ ] T1.1 Each role synonym maps to the right profession
-- [ ] T1.2 Each of the three date formats parses to the right date
-- [ ] T1.3 `05/08/2026` parses as 5 August
-- [ ] T1.4 Impossible date rejected (2026-02-30)
-- [ ] T1.5 Missing start or end time rejected
-- [ ] T1.6 Zero-length rejected; over-24h rejected; a 24h on-call shift accepted
-- [ ] T1.7 `10:00+1` notation parses to the next day
+- [x] T1.2 Each of the three date formats parses to the right date
+- [x] T1.3 `05/08/2026` parses as 5 August
+- [x] T1.4 Impossible date rejected (2026-02-30)
+- [x] T1.5 Missing start or end time rejected
+- [x] T1.6 Zero-length rejected; over-24h rejected; a 24h on-call shift accepted
+- [x] T1.7 `10:00+1` notation parses to the next day
 - [ ] T1.8 Free-text requirements rejected
 - [ ] T1.9 Missing requirement keys default to 0
-- [ ] T1.10 Overnight shift produces `ends_at` on the next day
+- [x] T1.10 Overnight shift produces `ends_at` on the next day
 - [ ] T1.11 Duplicate `shift_id` merged; same date and time under different
       ids kept as separate shifts
 - [ ] T1.12 Duplicate staff rows merged, unsupported profession rejected,
       `(at)` email repaired, missing name or email rejected, email already
       used by another staff member rejected
 - [ ] T1.13 Wrong header rejects the whole file and names the missing column
-- [ ] T1.14 Importing the real seed CSVs yields the expected accepted,
+- [x] T1.14 Importing the real seed CSVs yields the expected accepted,
       merged and rejected counts
 
 ### Business rules 
 
-- [ ] T2.1 Claim succeeds on an open shift
-- [ ] T2.2 Claim rejected when the profession is already full
-- [ ] T2.3 Claim rejected when it overlaps a shift the user has claimed
-- [ ] T2.4 Overlap detection is correct across midnight
-- [ ] T2.5 Same rules apply when a manager assigns someone
+- [x] T2.1 Claim succeeds on an open shift
+- [x] T2.2 Claim rejected when the profession is already full
+- [x] T2.3 Claim rejected when it overlaps a shift the user has claimed
+- [x] T2.4 Overlap detection is correct across midnight
+      Plus the boundary: back-to-back shifts are not a clash.
+- [x] T2.5 Same rules apply when a manager assigns someone
 - [ ] T2.6 Editing a shift's time drops only the claims that now break a rule
 - [ ] T2.7 Lowering requirements below current claims drops the most recent
 
 ### Concurrency
 
-- [ ] T3.1 N simultaneous claims on one open slot: exactly one succeeds and
+- [x] T3.1 N simultaneous claims on one open slot: exactly one succeeds and
       the rest get a clear rejection
-- [ ] T3.2 Same shift, different professions, claimed at once: both succeed
+      Also three slots against eight claimants, and one person firing two
+      overlapping claims at once — the case the user lock exists for.
+- [x] T3.2 Same shift, different professions, claimed at once: both succeed
 
 ### Authorization
 
 - [ ] T4.1 Staff requesting a manager route gets 403
-- [ ] T4.2 Staff cannot claim on behalf of another user
+- [x] T4.2 Staff cannot claim on behalf of another user
 
 ## 8. Optional
 
