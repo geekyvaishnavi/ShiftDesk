@@ -36,8 +36,8 @@ export default async function EditShiftPage({ params }: { params: Promise<{ id: 
   return (
     <div className="flex flex-col gap-5 p-4 md:p-6">
       <div>
-        <Link href={`/dashboard?week=${param}`} className="text-muted text-[12px] hover:underline">
-          ‹ Coverage · {formatWeekRange(week)}
+        <Link href={`/shifts?week=${param}`} className="text-muted text-[12px] hover:underline">
+          ‹ Shifts · {formatWeekRange(week)}
         </Link>
         <h1 className="text-ink mt-1 text-xl font-semibold">Edit shift</h1>
         <p className="text-muted mt-0.5 text-[12px]">
@@ -55,7 +55,7 @@ export default async function EditShiftPage({ params }: { params: Promise<{ id: 
         mode="edit"
         shiftId={shift.id}
         week={param}
-        backHref={`/dashboard?week=${param}`}
+        backHref={`/shifts?week=${param}`}
         defaults={{
           date: toDateParam(shift.startsAt),
           start: formatTime(shift.startsAt),

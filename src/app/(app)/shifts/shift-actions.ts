@@ -123,6 +123,14 @@ export async function updateShiftAction(
   });
 
   refresh();
+
+  // A clean save has nothing left to read, so it returns to the list the edit
+  // was opened from. An edit that dropped claims stays put: who lost their
+  // place is the one thing a manager must not have to go looking for.
+  if (dropped.length === 0) {
+    redirect(`/shifts?week=${String(formData.get("week") ?? "")}`);
+  }
+
   return { saved: true, dropped };
 }
 
@@ -138,5 +146,5 @@ export async function deleteShiftAction(formData: FormData): Promise<void> {
   }
 
   refresh();
-  redirect(`/dashboard?week=${String(formData.get("week") ?? "")}`);
+  redirect(`/shifts?week=${String(formData.get("week") ?? "")}`);
 }
