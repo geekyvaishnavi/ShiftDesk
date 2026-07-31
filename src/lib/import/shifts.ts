@@ -50,7 +50,7 @@ function parseRequirements(
 ///   - end clock time before start clock time, same day  -> rolls to +1 day
 ///   - explicit "+1" on the end time                     -> always +1 day
 ///   - end clock time equal to start clock time           -> zero length, not a rollover
-function computeShiftTimes(
+export function computeShiftTimes(
   dateInput: string,
   startInput: string,
   endInput: string,

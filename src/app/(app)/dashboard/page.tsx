@@ -79,7 +79,7 @@ export default async function DashboardPage({
     <div className="flex flex-col gap-4 p-4 md:p-6">
       <WeekNav week={week} basePath="/dashboard" trailing={<NewShiftButton week={week} />} />
 
-      <div className="grid gap-2.5 sm:grid-cols-3">
+      <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
         <Tile
           label="Shifts this week"
           value={rows.length}
@@ -87,6 +87,18 @@ export default async function DashboardPage({
             rows.length === 0
               ? "Nothing scheduled"
               : `${totalSlots} ${totalSlots === 1 ? "slot" : "slots"} across ${professionsInUse} ${professionsInUse === 1 ? "profession" : "professions"}`
+          }
+        />
+        <Tile
+          label="Fully staffed"
+          value={counts.full}
+          tone="ok"
+          detail={
+            rows.length === 0
+              ? "Nothing scheduled"
+              : counts.full === rows.length
+                ? "Every shift this week"
+                : `${Math.round((counts.full / rows.length) * 100)}% of the week covered`
           }
         />
         <Tile
@@ -162,7 +174,12 @@ export default async function DashboardPage({
                   <p className="text-muted/60 text-[12px]">—</p>
                 ) : (
                   forDay.map(({ shift, coverage }) => (
-                    <ShiftCard key={shift.id} shift={shift} coverage={coverage} />
+                    <ShiftCard
+                      key={shift.id}
+                      shift={shift}
+                      coverage={coverage}
+                      showPeople={false}
+                    />
                   ))
                 )}
               </section>
@@ -177,7 +194,7 @@ export default async function DashboardPage({
 function NewShiftButton({ week }: { week: Week }) {
   return (
     <Link
-      href={`/shifts/new?week=${weekParam(week)}`}
+      href={`/shifts?new=1&week=${weekParam(week)}`}
       className="bg-plum flex h-8 flex-none items-center rounded-md px-3 text-[13px] font-medium text-white transition hover:opacity-90"
     >
       New shift
@@ -187,6 +204,7 @@ function NewShiftButton({ week }: { week: Week }) {
 
 const DOTS = {
   plain: "",
+  ok: "bg-ok",
   warn: "bg-warn",
   gap: "bg-gap",
 } as const;
