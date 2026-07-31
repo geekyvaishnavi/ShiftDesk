@@ -153,17 +153,35 @@ stage. Production runs on Vercel and Neon; both environments read the same
 
 ## Testing
 
-`bun test`
+`bun test`, with Postgres running (`docker compose up -d db`).
 
-- Import rules are table-driven cases, since parsing and validation are pure
-  functions with no database
-- Capacity and overlap run against a real database, with overlap tested across
-  midnight
-- Concurrency: several claims fired at one open slot, exactly one succeeds
-- Two professions claimed on the same shift at once both succeed, confirming
-  the lock is not over-serializing
-- Manager routes requested with a staff session return 403
-- Browser end-to-end tests are out of scope
+Twenty-six tests across two files, chosen for what cannot be shown by clicking
+rather than for coverage.
+
+- **Import rules** are pure functions with no database, so they are plain
+  cases: the three date formats, both duration bounds, the overnight roll. The
+  anchor is the clinic's own two CSVs asserted down to the counts they produce
+  — 34 accepted, 3 merged, 4 rejected for staff; 111, 1 and 5 for shifts —
+  which exercises every synonym, repair and rejection rule at once
+- **Capacity and overlap** run against a real database, including the two cases
+  most likely to be wrong: an overlap that spans midnight, and a handover where
+  one shift ends exactly as the next begins, which must not count as a clash
+- **Concurrency** is the reason the claim path takes row locks, so it is tested
+  directly. Eight nurses claim one slot at once and exactly one gets it; eight
+  claim three slots and exactly three do; two professions claim the same shift
+  at once and both succeed, which is what says the lock is no wider than it
+  needs to be. One person firing two overlapping claims simultaneously lands
+  only one — that case is why the user row is locked as well as the shift
+- Deleting `FOR UPDATE` from both locks was used to check these tests have
+  teeth: the concurrency cases fail and every other test still passes
+
+Tests run against a separate `_test` database, created and migrated on first
+run. The suite refuses to start against a database whose name does not end in
+`_test`, so a stray `DATABASE_URL` cannot truncate development data.
+
+Authorization is covered where it is enforced — that staff cannot claim for
+someone else, and that a manager assigning is held to the same two rules — but
+not at the HTTP layer. Browser end-to-end tests are out of scope.
 
 ## With more time
 
