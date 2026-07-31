@@ -91,11 +91,37 @@ export function ShiftForm({
   // Keyed on the state object, which is a fresh reference after every submit,
   // so saving twice raises the toast twice.
   const [toastOpen, setToastOpen] = useState(false);
+
+  // Bumped after a create to remount the form, which returns the date field
+  // and any ticked staff to their defaults. Those are uncontrolled, so setting
+  // state alone would leave them holding the shift just saved.
+  const [formKey, setFormKey] = useState(0);
+
   useEffect(() => {
     if (!state.saved) return;
     setToastOpen(true);
     const timer = setTimeout(() => setToastOpen(false), 6000);
+
+    // A manager filling a week creates several shifts in a row, so a saved
+    // form is a finished one: it goes back to blank rather than leaving the
+    // last shift's times sitting there to be edited or saved again by mistake.
+    if (state.created) {
+      setStart(defaults.start);
+      setEnd(defaults.end);
+      setCounts({
+        doctor: defaults.reqDoctor,
+        nurse: defaults.reqNurse,
+        receptionist: defaults.reqReceptionist,
+      });
+      setFormKey((key) => key + 1);
+    }
+
     return () => clearTimeout(timer);
+    // Deliberately keyed on `state` alone. `defaults` arrives as a fresh object
+    // whenever the server re-renders the page — which this action triggers — and
+    // depending on it would re-run this effect and wipe the next shift someone
+    // had already started typing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   const refused = state.assignErrors?.length ?? 0;
@@ -121,7 +147,7 @@ export function ShiftForm({
 
   return (
     <div className="max-w-2xl">
-      <form id="shift-form" action={formAction} className="flex flex-col gap-6">
+      <form key={formKey} id="shift-form" action={formAction} className="flex flex-col gap-6">
         {shiftId ? <input type="hidden" name="shiftId" value={shiftId} /> : null}
         <input type="hidden" name="week" value={week} />
 
@@ -139,26 +165,10 @@ export function ShiftForm({
               />
             </Field>
             <Field label="Start" htmlFor="start">
-              <input
-                id="start"
-                name="start"
-                type="time"
-                required
-                value={start}
-                onChange={(event) => setStart(event.target.value)}
-                className={FIELD}
-              />
+              <TimeField id="start" name="start" value={start} onChange={setStart} />
             </Field>
             <Field label="End" htmlFor="end">
-              <input
-                id="end"
-                name="end"
-                type="time"
-                required
-                value={end}
-                onChange={(event) => setEnd(event.target.value)}
-                className={FIELD}
-              />
+              <TimeField id="end" name="end" value={end} onChange={setEnd} />
             </Field>
           </div>
           {duration ? (
@@ -391,6 +401,71 @@ function StaffPicker({ staff }: { staff: StaffOption[] }) {
         ))}
       </div>
     </div>
+  );
+}
+
+const HALF_HOURS = Array.from({ length: 48 }, (_, i) => {
+  const hour = String(Math.floor(i / 2)).padStart(2, "0");
+  return `${hour}:${i % 2 === 0 ? "00" : "30"}`;
+});
+
+/// "8" becomes 08:00, "830" becomes 08:30, "0830" the same. Anything that is
+/// not a time is handed back untouched, so `pattern` reports it rather than
+/// this quietly inventing a value.
+function normalizeTime(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 0 || digits.length > 4) return raw;
+
+  const padded = digits.length <= 2 ? `${digits.padStart(2, "0")}00` : digits.padStart(4, "0");
+  const hours = +padded.slice(0, 2);
+  const minutes = +padded.slice(2);
+  if (hours > 23 || minutes > 59) return raw;
+
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+/// A text field rather than `type="time"`: the native control is drawn in the
+/// viewer's locale, so a machine set to en-US offers a 12-hour picker with
+/// AM/PM while every time this app prints is 24-hour. The field states the
+/// format it wants and is the same on every machine. The datalist keeps the
+/// half-hours — which is every shift in the clinic's own export — one click
+/// away, and typing is normalised on blur so "8" is not a wrong answer.
+function TimeField({
+  id,
+  name,
+  value,
+  onChange,
+}: {
+  id: string;
+  name: string;
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  return (
+    <>
+      <input
+        id={id}
+        name={name}
+        type="text"
+        required
+        value={value}
+        onChange={(event) => onChange(event.target.value.replace(/[^\d:]/g, "").slice(0, 5))}
+        onBlur={(event) => onChange(normalizeTime(event.target.value))}
+        inputMode="numeric"
+        pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
+        title="24-hour time, such as 08:00 or 14:30"
+        placeholder="HH:MM"
+        maxLength={5}
+        autoComplete="off"
+        list={`${id}-options`}
+        className={FIELD}
+      />
+      <datalist id={`${id}-options`}>
+        {HALF_HOURS.map((time) => (
+          <option key={time} value={time} />
+        ))}
+      </datalist>
+    </>
   );
 }
 
