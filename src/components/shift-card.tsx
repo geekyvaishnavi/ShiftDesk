@@ -7,10 +7,14 @@ export function ShiftCard({
   shift,
   coverage,
   actions,
+  showPeople = true,
 }: {
   shift: WeekShift;
   coverage: Coverage;
   actions?: React.ReactNode;
+  /// The coverage grid asks "is this shift covered", not "by whom" — names in
+  /// a 160px column are noise, and the answer is already in the status line.
+  showPeople?: boolean;
 }) {
   // An overnight shift ends on the next day; say so rather than showing a time
   // that reads as going backwards.
@@ -34,7 +38,7 @@ export function ShiftCard({
         </p>
       </div>
 
-      {shift.claims.length > 0 ? (
+      {showPeople && shift.claims.length > 0 ? (
         <ul className="mt-2 flex flex-wrap gap-1">
           {shift.claims.map((claim) => (
             <li
