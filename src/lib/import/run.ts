@@ -77,7 +77,9 @@ export async function runStaffImport(
 
       return run.id;
     },
-    { timeout: 30_000 },
+    // One round trip per row, so the ceiling scales with network latency, not
+    // row count: ~330ms to a remote Postgres puts a 117-row file near 40s.
+    { timeout: 120_000 },
   );
 
   return {
@@ -133,7 +135,9 @@ export async function runShiftImport(
 
       return run.id;
     },
-    { timeout: 30_000 },
+    // One round trip per row, so the ceiling scales with network latency, not
+    // row count: ~330ms to a remote Postgres puts a 117-row file near 40s.
+    { timeout: 120_000 },
   );
 
   return {
