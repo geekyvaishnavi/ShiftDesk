@@ -1,27 +1,40 @@
-import { Suspense } from "react";
-
 import { SidebarNav, type NavItem } from "@/components/sidebar-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Wordmark } from "@/components/wordmark";
 import { requireUser } from "@/lib/auth";
+import type { Profession } from "@/lib/import/roles";
+import { getStaffCounts, resolveWeek } from "@/lib/shifts";
 
 import { logout } from "../login/actions";
 
+/// Assigning is a filter on the shifts page, not a place of its own, so it
+/// lives as a chip there rather than as a second nav entry pointing at the
+/// same route.
 const MANAGER_NAV: NavItem[] = [
   { href: "/dashboard", label: "Coverage" },
   { href: "/shifts", label: "Shifts" },
-  { href: "/shifts?needs=1", label: "Needs cover" },
   { href: "/import", label: "Import" },
 ];
 
-const STAFF_NAV: NavItem[] = [{ href: "/shifts", label: "Shifts" }];
+/// Staff see two lists, not one: what they could take, and what they hold.
+/// The counts come from the same queries the pages run, so a badge cannot
+/// promise something the page then fails to show.
+async function staffNav(user: { id: string; profession: Profession | null }): Promise<NavItem[]> {
+  const week = await resolveWeek(undefined);
+  const counts = await getStaffCounts(user.id, user.profession, week);
+
+  return [
+    { href: "/shifts", label: "Open shifts", badge: String(counts.open) },
+    { href: "/my-shifts", label: "My shifts", badge: String(counts.mine) },
+  ];
+}
 
 /// Every route in this group is signed-in, so the check lives here rather than
 /// in each page. Layouts may read cookies, and `requireUser` redirects to
 /// /login when there is no valid session.
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
-  const items = user.role === "manager" ? MANAGER_NAV : STAFF_NAV;
+  const items = user.role === "manager" ? MANAGER_NAV : await staffNav(user);
 
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
@@ -34,11 +47,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
         </div>
 
-        {/* SidebarNav reads the query string, which a layout cannot see —
-            hence a client component, and a boundary around it. */}
-        <Suspense fallback={<div className="h-8" />}>
-          <SidebarNav items={items} />
-        </Suspense>
+        {/* SidebarNav reads the pathname, which a layout cannot see, so the
+            active state has to be decided on the client. */}
+        <SidebarNav items={items} />
 
         <div className="border-hairline mt-auto flex items-center gap-2 border-t pt-3">
           <div className="min-w-0 flex-1">

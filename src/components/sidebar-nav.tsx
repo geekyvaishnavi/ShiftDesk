@@ -1,22 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export type NavItem = { href: string; label: string; badge?: string };
 
 /// Active state needs the current URL, which only a client component can read.
-/// Assign and Shifts share a path and differ by query, so the check compares
-/// both when the item carries one.
+/// Matching on the path prefix keeps Shifts lit while its child routes are
+/// open — creating and editing a shift are still being on Shifts.
 export function SidebarNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
-  const search = useSearchParams();
 
   function isActive(href: string): boolean {
-    const [path, query] = href.split("?");
-    if (!pathname.startsWith(path)) return false;
-    if (query) return search.get("needs") === "1";
-    return path !== "/shifts" || search.get("needs") !== "1";
+    return pathname.startsWith(href.split("?")[0]);
   }
 
   return (
