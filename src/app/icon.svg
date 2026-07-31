@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- The Wordmark glyph at favicon scale: a 24-hour ring with one shift block
+       filled. Stroke weights are heavier than the in-app mark so the arc still
+       separates from the faint ring at 16px. Plum is inlined as hex because a
+       favicon renders outside the document that defines the plum token, and it
+       stays the light-theme value in both schemes: the white glyph carries
+       legibility on dark tab strips, whereas the lighter dark-theme plum washes
+       the faint ring out entirely. -->
+  <rect width="32" height="32" rx="9.3" fill="#653A68" />
+  <g fill="none" stroke="#fff" stroke-width="3.2">
+    <circle cx="16" cy="16" r="9.6" opacity=".45" />
+    <path d="M16 6.4A9.6 9.6 0 0 1 25.6 16" stroke-width="4.6" stroke-linecap="round" />
+  </g>
+</svg>
