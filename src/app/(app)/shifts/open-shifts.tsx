@@ -1,18 +1,11 @@
 import Link from "next/link";
 
+import { WeekNav } from "@/components/week-nav";
 import { PROFESSION_LABELS, describeMissing, type Coverage } from "@/lib/coverage";
 import type { Profession } from "@/lib/import/roles";
 import { formatHours, isNightShift, shiftHours } from "@/lib/shift-time";
 import type { WeekShift } from "@/lib/shifts";
-import {
-  formatDayHeading,
-  formatTime,
-  formatWeekRange,
-  isSameUTCDay,
-  shiftWeek,
-  weekParam,
-  type Week,
-} from "@/lib/week";
+import { formatDayHeading, formatTime, isSameUTCDay, weekParam, type Week } from "@/lib/week";
 
 import { ClaimButton } from "./claim-controls";
 
@@ -43,30 +36,14 @@ export function OpenShifts({
 
   return (
     <>
-      <div className="flex flex-wrap items-start gap-3">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-ink text-xl font-semibold">Open shifts</h1>
-          <p className="text-muted mt-0.5 text-[13px]">
-            Shifts you’re eligible for as a {PROFESSION_LABELS[profession].one} ·{" "}
-            {formatWeekRange(week)}
-          </p>
-        </div>
-        <nav className="flex items-center gap-1.5" aria-label="Change week">
-          {[-1, 1].map((delta) => (
-            <Link
-              key={delta}
-              href={`/shifts?${new URLSearchParams({
-                ...(filter ? { when: filter } : {}),
-                week: weekParam(shiftWeek(week, delta)),
-              })}`}
-              aria-label={delta < 0 ? "Previous week" : "Next week"}
-              className="border-hairline hover:bg-hover text-ink flex h-8 w-8 flex-none items-center justify-center rounded-md border text-[13px] transition"
-            >
-              {delta < 0 ? "‹" : "›"}
-            </Link>
-          ))}
-        </nav>
-      </div>
+      {/* The same week header the manager's pages use, so stepping weeks,
+          returning to this one and jumping to a date work identically
+          whichever role is signed in. */}
+      <WeekNav week={week} basePath="/shifts" params={filter ? { when: filter } : {}} />
+
+      <p className="text-muted -mt-2 text-[13px]">
+        Shifts you’re eligible for as a {PROFESSION_LABELS[profession].one}.
+      </p>
 
       <div className="flex flex-wrap items-center gap-2">
         {FILTERS.map((option) => {

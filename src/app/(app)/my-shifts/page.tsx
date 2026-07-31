@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { WeekNav } from "@/components/week-nav";
 import { requireUser } from "@/lib/auth";
 import { PROFESSION_LABELS, computeCoverage, countClaimsByProfession } from "@/lib/coverage";
 import { formatHours, shiftHours, shiftLabel } from "@/lib/shift-time";
@@ -9,12 +10,9 @@ import {
   daysOf,
   formatDayNumber,
   formatTime,
-  formatWeekRange,
   formatWeekday,
   isSameUTCDay,
-  shiftWeek,
   weekParam,
-  type Week,
 } from "@/lib/week";
 
 import { ReleaseButton } from "../shifts/claim-controls";
@@ -37,16 +35,14 @@ export default async function MyShiftsPage({
 
   return (
     <div className="flex flex-col gap-5 p-4 md:p-6">
-      <div className="flex flex-wrap items-start gap-3">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-ink text-xl font-semibold">My shifts</h1>
-          <p className="text-muted mt-0.5 text-[13px]">
-            {formatWeekRange(week)} · {user.fullName}
-            {user.profession ? `, ${PROFESSION_LABELS[user.profession].one}` : ""}
-          </p>
-        </div>
-        <WeekArrows week={week} />
-      </div>
+      {/* The same week header the manager's pages use, so the two roles step
+          through weeks the same way. */}
+      <WeekNav week={week} basePath="/my-shifts" />
+
+      <p className="text-muted -mt-2 text-[13px]">
+        {user.fullName}
+        {user.profession ? `, ${PROFESSION_LABELS[user.profession].one}` : ""}
+      </p>
 
       {/* Hours are shown because a rota is also a timesheet, but no cap is
           implied: a weekly limit would be a third claim rule, and the brief
@@ -128,29 +124,5 @@ export default async function MyShiftsPage({
         </div>
       )}
     </div>
-  );
-}
-
-const ARROW =
-  "border-hairline hover:bg-hover text-ink flex h-8 w-8 flex-none items-center justify-center rounded-md border text-[13px] transition";
-
-function WeekArrows({ week }: { week: Week }) {
-  return (
-    <nav className="flex items-center gap-1.5" aria-label="Change week">
-      <Link
-        href={`/my-shifts?week=${weekParam(shiftWeek(week, -1))}`}
-        className={ARROW}
-        aria-label="Previous week"
-      >
-        ‹
-      </Link>
-      <Link
-        href={`/my-shifts?week=${weekParam(shiftWeek(week, 1))}`}
-        className={ARROW}
-        aria-label="Next week"
-      >
-        ›
-      </Link>
-    </nav>
   );
 }
