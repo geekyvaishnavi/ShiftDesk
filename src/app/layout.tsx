@@ -31,8 +31,12 @@ export default function RootLayout({
     // suppressHydrationWarning: the script above adds data-theme to <html>
     // before React hydrates, so the attribute legitimately differs from the
     // server output.
+    //
+    // lang is en-GB rather than en: every formatter in the app is en-GB with
+    // hourCycle h23, and the document should declare the same locale the
+    // native date and time pickers are asked to render in.
     <html
-      lang="en"
+      lang="en-GB"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
