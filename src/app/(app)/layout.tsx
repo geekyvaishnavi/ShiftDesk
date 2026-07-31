@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { SidebarNav, type NavItem } from "@/components/sidebar-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Wordmark } from "@/components/wordmark";
@@ -40,8 +42,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-dvh flex-col md:flex-row">
       <aside className="border-hairline bg-surface flex flex-col gap-3 border-b p-3 md:sticky md:top-0 md:h-dvh md:w-56 md:flex-none md:border-r md:border-b-0">
         <div className="flex items-center gap-2">
-          <Wordmark size={22} />
-          <span className="text-ink text-[13px] font-semibold">ShiftDesk</span>
+          {/* The mark is aria-hidden, so the wording carries the link's name. */}
+          <Link href="/" className="hover:bg-hover -m-1 flex items-center gap-2 rounded-md p-1">
+            <Wordmark size={22} />
+            <span className="text-ink text-[13px] font-semibold">ShiftDesk</span>
+          </Link>
           <div className="ml-auto">
             <ThemeToggle />
           </div>

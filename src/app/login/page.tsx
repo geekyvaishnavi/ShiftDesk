@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Wordmark } from "@/components/wordmark";
@@ -25,13 +26,13 @@ export default async function LoginPage() {
   return (
     <main className="bg-canvas flex min-h-dvh items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
-        <div className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5">
           <Wordmark size={30} />
           <div>
             <h1 className="text-ink text-lg leading-tight font-semibold">ShiftDesk</h1>
             <p className="text-muted text-[12px]">Clinic shift scheduling</p>
           </div>
-        </div>
+        </Link>
 
         <div className="border-hairline bg-surface mt-5 rounded-xl border p-6">
           <h2 className="text-ink text-[15px] font-semibold">Sign in</h2>
