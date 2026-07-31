@@ -7,42 +7,46 @@ From PROJECT_BRIEF.md.
 - [x] R1.1 Login with email + password
 - [x] R1.2 Two roles: `manager`, `staff`
 - [x] R1.3 Staff have a profession: doctor / nurse / receptionist
-- [ ] R1.4 Staff can only claim/unclaim for themselves
-- [ ] R1.5 Manager can assign staff to shifts directly
+- [x] R1.4 Staff can only claim/unclaim for themselves
+- [x] R1.5 Manager can assign staff to shifts directly
 - [x] R1.6 Seed 1 manager and several staff
 - [ ] R1.7 Credentials listed in README
-- [ ] R1.8 Manager-only routes return 403 for staff
+- [x] R1.8 Manager-only routes deny staff
+      Pages redirect to `/shifts`; server actions return an error. The 403
+      helpers in `auth.ts` are for route handlers, of which there are none.
 
 ## 2. Shift management
 
 - [x] R2.1 Shift has date, start time, end time, role requirements
-- [ ] R2.2 Manager can create a shift
-- [ ] R2.3 Manager can edit a shift
-- [ ] R2.4 Manager can delete a shift
-- [ ] R2.5 Editing a claimed shift has defined behaviour, documented in DECISIONS.md
+- [x] R2.2 Manager can create a shift
+- [x] R2.3 Manager can edit a shift
+- [x] R2.4 Manager can delete a shift
+- [x] R2.5 Editing a claimed shift has defined behaviour, documented in DECISIONS.md
 
 ## 3. Claiming
 
-- [ ] R3.1 Staff can claim an open shift
-- [ ] R3.2 Staff can unclaim
-- [ ] R3.3 Reject if the shift already has enough of that profession
-- [ ] R3.4 Reject if it overlaps another shift the user has claimed
-- [ ] R3.5 Rejections return a specific error message
-- [ ] R3.6 Rules enforced server-side
-- [ ] R3.7 Same rules apply when a manager assigns someone
-- [ ] R3.8 Rules re-validated when a shift's time is edited after being claimed
-- [ ] R3.9 Concurrent claims on one open slot: exactly one succeeds
+- [x] R3.1 Staff can claim an open shift
+- [x] R3.2 Staff can unclaim
+- [x] R3.3 Reject if the shift already has enough of that profession
+- [x] R3.4 Reject if it overlaps another shift the user has claimed
+- [x] R3.5 Rejections return a specific error message
+- [x] R3.6 Rules enforced server-side
+- [x] R3.7 Same rules apply when a manager assigns someone
+- [x] R3.8 Rules re-validated when a shift's time is edited after being claimed
+- [x] R3.9 Concurrent claims on one open slot: exactly one succeeds
+      Enforced by `FOR UPDATE` on both the shift and the user. Implemented,
+      not yet proven — see T3.1.
 
 ## 4. CSV import
 
 - [x] R4.1 Import runs as part of seed
-- [ ] R4.2 Deployed database pre-populated from that import
-- [ ] R4.3 Manager can upload a CSV through the UI
-- [ ] R4.4 Upload calls the same import function as seed
-- [ ] R4.5 Import report page exists
-- [ ] R4.6 Import report is manager-only
-- [ ] R4.7 Report shows count of accepted rows
-- [ ] R4.8 For each rejected or merged row: the row, the problem, the action taken
+- [x] R4.2 Deployed database pre-populated from that import
+- [x] R4.3 Manager can upload a CSV through the UI
+- [x] R4.4 Upload calls the same import function as seed
+- [x] R4.5 Import report page exists
+- [x] R4.6 Import report is manager-only
+- [x] R4.7 Report shows count of accepted rows
+- [x] R4.8 For each rejected or merged row: the row, the problem, the action taken
 
 ### staff.csv rules
 
@@ -78,29 +82,37 @@ From PROJECT_BRIEF.md.
 
 ## 5. Coverage dashboard
 
-- [ ] R5.1 Manager week view
-- [ ] R5.2 Shows every shift in the week
-- [ ] R5.3 Status per shift: fully staffed, partially staffed, empty
-- [ ] R5.4 Shows which roles are still missing
-- [ ] R5.5 Jump to any week
+- [x] R5.1 Manager week view
+- [x] R5.2 Shows every shift in the week
+- [x] R5.3 Status per shift: fully staffed, partially staffed, empty
+- [x] R5.4 Shows which roles are still missing
+- [x] R5.5 Jump to any week
+      Previous / this week / next, plus a date picker that snaps to the
+      containing week. The week lives in `?week=`, so it stays linkable.
 - [ ] R5.6 Responsive
+      Breakpoint classes and a scroll container are in place; not yet checked
+      in a browser at real widths.
 
 ## 6. Deliverables
 
 - [ ] R6.1 Live deployed URL, seeded
+      Neon is migrated and seeded. Vercel is serving an empty build.
 - [ ] R6.2 README notes cold starts
-- [ ] R6.3 Meaningful commits
-- [ ] R6.4 DECISIONS.md, including one thing to do differently with more time
+- [x] R6.3 Meaningful commits
+- [x] R6.4 DECISIONS.md, including one thing to do differently with more time
 - [ ] R6.5 README: stack, local setup, test instructions, credentials
+      Still the create-next-app boilerplate.
 - [ ] R6.6 Tests runnable with one command
 - [x] R6.7 `docker compose up` starts app and database, runs migrations, seeds
 - [ ] R6.8 Fresh clone needs no setup steps beyond `docker compose up`
+      Not verified from a clean clone.
 - [x] R6.9 App image builds from `output: 'standalone'`
 - [x] R6.10 App waits for the database healthcheck before migrating
 
 ## 7. Tests
 
 Run with `bun test`. Documented in the README.
+
 
 ### Import (pure functions, no database)
 
@@ -151,9 +163,9 @@ Table-driven, one case per rule in section 4.
 
 ### Hours on duty
 
-- [ ] O1.1 Staff see their total hours for the week on My Shifts
+- [x] O1.1 Staff see their total hours for the week on My Shifts
 - [ ] O1.2 Manager sees hours per staff member for the visible week
-- [ ] O1.3 Totals come from claimed shifts, no schema change
+- [x] O1.3 Totals come from claimed shifts, no schema change
 
 Display only. Not a claim rule: a weekly hour cap would add a third business
 rule the brief does not ask for, interacting with the two it does.
@@ -164,4 +176,3 @@ rule the brief does not ask for, interacting with the two it does.
 - Live updates
 - End-to-end browser tests
 - Weekly hour limits as a validation rule
-
