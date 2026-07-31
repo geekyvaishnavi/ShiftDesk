@@ -87,6 +87,19 @@ export function formatDayHeading(date: Date): string {
   return WEEKDAY_MONTH.format(date);
 }
 
+const WEEKDAY = new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "UTC" });
+const DAY_NUMBER = new Intl.DateTimeFormat("en-GB", { day: "numeric", timeZone: "UTC" });
+
+/// The rota columns want the weekday and the date apart, so each can carry its
+/// own weight: "MON" quiet and small, "27" in the text colour.
+export function formatWeekday(date: Date): string {
+  return WEEKDAY.format(date);
+}
+
+export function formatDayNumber(date: Date): string {
+  return DAY_NUMBER.format(date);
+}
+
 export function formatTime(date: Date): string {
   return TIME.format(date);
 }
