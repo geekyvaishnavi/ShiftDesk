@@ -18,6 +18,12 @@
   --plum: #7a2e63;
   --accent: #7a2e63;
 
+  /* The wash behind the landing page. Both are the wordmark's plum — one at
+     full strength, one lifted towards mauve — so the page reads as one colour
+     rather than introducing a second brand. */
+  --glow-a: #7a2e63;
+  --glow-b: #a9749b;
+
   --ok: #15803d;
   --ok-soft: #e7f6ec;
   --warn: #a16207;
@@ -39,6 +45,9 @@
   --plum: #8f3a75;
   --accent: #d59ac4;
 
+  --glow-a: #8f3a75;
+  --glow-b: #6b3358;
+
   --ok: #4ade80;
   --ok-soft: #14261a;
   --warn: #fbbf24;
@@ -57,6 +66,8 @@
 
   --color-plum: var(--plum);
   --color-accent: var(--accent);
+  --color-glow-a: var(--glow-a);
+  --color-glow-b: var(--glow-b);
 
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
