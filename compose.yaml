@@ -22,7 +22,7 @@ services:
       target: build
     environment:
       DATABASE_URL: postgresql://shiftdesk:shiftdesk@db:5432/shiftdesk
-    command: sh -c "bunx prisma migrate deploy"
+    command: sh -c "bunx prisma migrate deploy && bun prisma/seed.ts"
     depends_on:
       db:
         condition: service_healthy
@@ -32,6 +32,7 @@ services:
       context: .
     environment:
       DATABASE_URL: postgresql://shiftdesk:shiftdesk@db:5432/shiftdesk
+      AUTH_SECRET: ${AUTH_SECRET:-local-development-secret-not-for-production}
     ports:
       - "3000:3000"
     depends_on:
