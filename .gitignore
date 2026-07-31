@@ -52,3 +52,6 @@ PROJECT_BRIEF.md
 .claude/
 .windsurf/
 skills-lock.json
+
+# The example is safe to commit; real .env files stay ignored.
+!.env.example
